@@ -29,8 +29,10 @@ int main(void) {
     SLLNode* cur = n1;
 
     while (cur != nullptr) {
+        if (cur != nullptr) {
         std::cout << cur->data << " ";
         cur = cur->next;
+        }
     }
 
     return 0;
