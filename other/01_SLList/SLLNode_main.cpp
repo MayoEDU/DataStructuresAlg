@@ -15,6 +15,15 @@ int main(void) {
 
     // Print the value of the first node
     std::cout << n1->data << std::endl;
+    std::cout << n2->data << std::endl;
+    std::cout << n3->data << std::endl;
+    std::cout << n4->data << std::endl;
+
+    // Printing through n1
+    std::cout << n1->data << std::endl;
+    std::cout << n1->next->data << std::endl;
+    std::cout << n1->next->next->data << std::endl;
+    std::cout << n1->next->next->next->data << std::endl;
 
     return 0;
 };
