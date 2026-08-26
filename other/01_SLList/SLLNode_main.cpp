@@ -25,5 +25,13 @@ int main(void) {
     std::cout << n1->next->next->data << std::endl;
     std::cout << n1->next->next->next->data << std::endl;
 
+    // Iteration through the nodes
+    SLLNode* cur = n1;
+
+    while (cur != nullptr) {
+        std::cout << cur->data << " ";
+        cur = cur->next;
+    }
+
     return 0;
 };
