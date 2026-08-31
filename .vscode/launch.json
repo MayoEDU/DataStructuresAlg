@@ -1,0 +1,25 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Run SLList tail",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/other/03_SLList_tail/SLList_main",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/other/03_SLList_tail",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "preLaunchTask": "Build SLList tail",
+            "setupCommands": [
+                {
+                    "description": "Enable GDB pretty printing",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        }
+    ]
+}

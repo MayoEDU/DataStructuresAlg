@@ -29,7 +29,17 @@ void SLList::push_front(int val) {
 }
 
 void SLList::push_back(int val) {
-
+    SLLNode* new_node = new SLLNode(val);
+    if (!head) {
+        head = new_node;
+    } else {
+        SLLNode* cur = head;
+        while (cur->next) {
+            cur = cur->next;
+        }
+        cur->next = new_node;
+    }
+    ++list_size;
 }
 
 void SLList::print(){

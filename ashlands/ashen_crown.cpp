@@ -29,19 +29,33 @@ struct Player {
 
 mt19937 rng(static_cast<unsigned>(chrono::steady_clock::now().time_since_epoch().count()));
 int roll(int low, int high) { return uniform_int_distribution<int>(low, high)(rng); }
-void clearScreen() { cout << "\033[2J\033[H"; }
-void pauseGame() { cout << DIM << "\nPress ENTER to continue..." << RESET; string line; getline(cin, line); }
-void title(const string& text) { cout << "\n" << CYAN << BOLD << "== " << text << " ==" << RESET << "\n"; }
+string normalizeInput(const string& raw) {
+    string out = raw;
+    while (!out.empty() && (out.front() == ' ' || out.front() == '\t' || out.front() == '\r')) out.erase(out.begin());
+    while (!out.empty() && (out.back() == ' ' || out.back() == '\t' || out.back() == '\r')) out.pop_back();
+    transform(out.begin(), out.end(), out.begin(), [](unsigned char c) { return static_cast<char>(tolower(c)); });
+    return out;
+}
+void clearScreen() { cout << "\033[2J\033[H" << flush; }
+void pauseGame() { cout << DIM << "\nPress ENTER to continue..." << RESET << flush; string line; getline(cin, line); }
+void title(const string& text) { cout << "\n" << CYAN << BOLD << "== " << text << " ==" << RESET << "\n" << flush; }
 void bar(int value, int maximum, int width, const string& color) {
 	int filled = maximum ? max(0, min(width, value * width / maximum)) : 0;
 	cout << color << "[" << string(filled, '#') << string(width - filled, '-') << "]" << RESET;
 }
 void banner() {
-	cout << MAGENTA << BOLD
-		 << "      .       *        .       *       .\n"
-		 << "  /\\_/\\   THE ASHEN CROWN   /\\_/\\\n"
-		 << " ( o.o )  terminal fantasy RPG  ( o.o )\n"
-		 << "  > ^ <                         > ^ <\n" << RESET;
+    const int bannerWidth = 58;
+    const vector<string> lines = {
+        "      .       *        .       *       .",
+        "  /\\_/\\   THE ASHEN CROWN   /\\_/\\",
+        " ( o.o )  terminal fantasy RPG  ( o.o )",
+        "  > ^ <                         > ^ <"
+    };
+
+    for (const string& line : lines) {
+        int padLeft = max(0, (bannerWidth - static_cast<int>(line.length())) / 2);
+        cout << MAGENTA << BOLD << string(padLeft, ' ') << line << RESET << '\n';
+    }
 }
 string weaponName(int weapon) { return weapon == 0 ? "Rusty blade" : weapon == 1 ? "Embersteel" : weapon == 2 ? "Star-forged edge" : "Crownfang"; }
 string armorName(int armor) { return armor == 0 ? "Traveler's coat" : armor == 1 ? "Ashplate" : "Wyrmguard mail"; }
@@ -205,11 +219,11 @@ bool deleteSave() { return remove(SAVE_FILE.c_str()) == 0; }
 bool titleScreen(Player& p, int& seed, int& x, int& y, bool defeated[3]) {
 	while (true) {
 		clearScreen(); banner(); cout << "\n" << WHITE << "The sun died three winters ago. Three relics can relight it.\n" << RESET
-			<< "[1] New expedition\n[2] Resume expedition " << (ifstream(SAVE_FILE) ? "(save found)" : "(no save)") << "\n[3] Delete save\n[4] Quit\n> ";
-		string choice; getline(cin, choice);
-		if (choice == "1" || choice == "new") { p = Player(); seed = roll(10000, 999999); x = y = 6; defeated[0] = defeated[1] = defeated[2] = false; cout << "\nHero name (ENTER for Aster): "; getline(cin, p.name); if (p.name.empty()) p.name = "Aster"; saveGame(p, seed, x, y, defeated, true); return true; }
-		if (choice == "2" || choice == "resume") { if (loadGame(p, seed, x, y, defeated)) { cout << GREEN << "Save restored.\n" << RESET; pauseGame(); return true; } cout << RED << "No valid save found.\n" << RESET; pauseGame(); }
-		else if (choice == "3" || choice == "delete") { cout << (deleteSave() ? GREEN + string("Save deleted.\n") + RESET : YELLOW + string("There is no save to delete.\n") + RESET); pauseGame(); }
+			<< "[1] New expedition\n[2] Resume expedition " << (ifstream(SAVE_FILE) ? "(save found)" : "(no save)") << "\n[3] Delete save\n[4] Quit\n> " << flush;
+		string choice; getline(cin, choice); choice = normalizeInput(choice);
+		if (choice == "1" || choice == "new") { p = Player(); seed = roll(10000, 999999); x = y = 6; defeated[0] = defeated[1] = defeated[2] = false; cout << "\nHero name (ENTER for Aster): " << flush; getline(cin, p.name); if (p.name.empty()) p.name = "Aster"; saveGame(p, seed, x, y, defeated, true); return true; }
+		if (choice == "2" || choice == "resume") { if (loadGame(p, seed, x, y, defeated)) { cout << GREEN << "Save restored.\n" << RESET << flush; pauseGame(); return true; } cout << RED << "No valid save found.\n" << RESET << flush; pauseGame(); }
+		else if (choice == "3" || choice == "delete") { cout << (deleteSave() ? GREEN + string("Save deleted.\n") + RESET : YELLOW + string("There is no save to delete.\n") + RESET) << flush; pauseGame(); }
 		else if (choice == "4" || choice == "quit" || choice == "q") return false;
 	}
 }
@@ -218,17 +232,24 @@ int main() {
 	Player player; int seed = 0, x = 6, y = 6; bool defeated[3] = {false, false, false};
 	if (!titleScreen(player, seed, x, y, defeated)) return 0;
 	while (true) {
-		if (player.hp <= 0) { clearScreen(); banner(); cout << RED << BOLD << "THE ASHLANDS CLAIM YOU\n" << RESET << "[1] Rise again (lose carried loot)  [2] Quit\n> "; string death; getline(cin, death); if (death == "1") { player.hp = player.maxHp; player.mana = player.maxMana; player.gold /= 2; x = y = 6; continue; } break; }
+		if (player.hp <= 0) { clearScreen(); banner(); cout << RED << BOLD << "THE ASHLANDS CLAIM YOU\n" << RESET << "[1] Rise again (lose carried loot)  [2] Quit\n> " << flush; string death; getline(cin, death); death = normalizeInput(death); if (death == "1") { player.hp = player.maxHp; player.mana = player.maxMana; player.gold /= 2; x = y = 6; continue; } break; }
 		clearScreen(); banner(); status(player); drawMap(seed, x, y, player);
-		cout << "\n" << WHITE << "Command [n/s/e/w, map, stats, save, shop, menu, help, quit]" << RESET << "\n> "; string input; getline(cin, input);
+		cout << "\n" << WHITE << "Command [n/s/e/w, map, stats, save, shop, menu, help, quit]" << RESET << "\n> " << flush; string input; getline(cin, input); input = normalizeInput(input);
 		if (input == "quit" || input == "q") break;
-		if (input == "help") { cout << "Move with WASD or north/south/east/west. Water (~) is impassable; mountains (^) and ruins (:) cost 2 steps. Landmarks: T shop, H shrine, B boss. Reach C after all three relics.\n"; pauseGame(); continue; }
+		if (input == "help") { cout << "Move with WASD or north/south/east/west. Water (~) is impassable; mountains (^) and ruins (:) cost 2 steps. Landmarks: T shop, H shrine, B boss. Reach C after all three relics.\n" << flush; pauseGame(); continue; }
 		if (input == "map" || input == "stats") { if (input == "stats") inspect(player); else pauseGame(); continue; }
 		if (input == "save") { saveGame(player, seed, x, y, defeated); pauseGame(); continue; }
-		if (input == "shop") { if ((x == 2 && y == 2) || (x == 9 && y == 8)) shop(player); else { cout << "The automatic shop is in a town (T).\n"; pauseGame(); } continue; }
+		if (input == "shop") { if ((x == 2 && y == 2) || (x == 9 && y == 8)) shop(player); else { cout << "The automatic shop is in a town (T).\n" << flush; pauseGame(); } continue; }
 		if (input == "menu") { saveGame(player, seed, x, y, defeated, true); if (!titleScreen(player, seed, x, y, defeated)) break; continue; }
-		int nx = x, ny = y; if (input == "n" || input == "north" || input == "w") --ny; if (input == "s" || input == "south" || input == "x") ++ny; if (input == "e" || input == "east" || input == "d") ++nx; if (input == "west" || input == "a") --nx;
-		if (nx == x && ny == y) { cout << "The ash does not understand that command.\n"; pauseGame(); continue; }
+		int nx = x, ny = y;
+		if (input == "n" || input == "north" || input == "up") --ny;
+		if (input == "s" || input == "south" || input == "down") ++ny;
+		if (input == "e" || input == "east" || input == "right") ++nx;
+		if (input == "w" || input == "west" || input == "left" || input == "a") --nx;
+		if (input == "d") ++nx;
+		if (input == "x") ++ny;
+		if (input == "z") --nx;
+		if (nx == x && ny == y) { cout << "The ash does not understand that command.\n" << flush; pauseGame(); continue; }
 		if (nx <= 0 || nx >= 11 || ny <= 0 || ny >= 11) { cout << "A cliff of black glass blocks the way.\n"; pauseGame(); continue; }
 		if (terrain(seed, nx, ny) == '~' && nx != 2 && ny != 2) { cout << CYAN << "Deep water blocks the route.\n" << RESET; pauseGame(); continue; }
 		if (nx == 10 && ny == 1 && player.keys < 1) { cout << RED << "A rune gate demands the Colossus Key.\n" << RESET; pauseGame(); continue; }
