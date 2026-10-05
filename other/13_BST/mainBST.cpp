@@ -9,8 +9,11 @@ int main() {
     words.insert("zoo");
     words.insert("banana");
     words.insert("pear");
+    words.insert("cat");
+    words.insert("dog");
+    words.insert("car");
 
-    words.remove("mango");
+    words.print();
 
     return 0;
 }

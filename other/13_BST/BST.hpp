@@ -11,6 +11,7 @@ public:
 
     bool insert(const T& value);
     void remove(const T& value);
+    void print() const;
 
 private:
     struct Node {
@@ -26,7 +27,6 @@ private:
     };
 
     void inorder(Node* node) const;
-    void print() const;
     Node* search(const T& value) const;
     Node* getMinNode(Node* node) const;
     void deleteLeaf(Node* node, Node* parent);
