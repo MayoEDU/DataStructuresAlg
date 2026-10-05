@@ -1,45 +1,39 @@
 #ifndef BST_HPP
 #define BST_HPP
 
-#include <cstddef>
 #include <iostream>
 
 template <typename T>
 class BST {
 public:
     BST();
-    BST(const BST& other);
-    BST& operator=(const BST& other);
     ~BST();
 
     bool insert(const T& value);
-    bool contains(const T& value) const;
-    bool has(const T& value) const;
-    bool remove(const T& value);
-
-    bool empty() const;
-    std::size_t size() const;
-    void clear();
-
-    void inorder() const;
-    void inordr() const;
+    void remove(const T& value);
 
 private:
     struct Node {
         explicit Node(const T& value) : data(value), left(nullptr), right(nullptr) {}
+        ~Node() {
+            delete left;
+            delete right;
+        }
 
         T data;
         Node* left;
         Node* right;
     };
 
-    Node* root;
-    std::size_t tree_size;
+    void inorder(Node* node) const;
+    void print() const;
+    Node* search(const T& value) const;
+    Node* getMinNode(Node* node) const;
+    void deleteLeaf(Node* node, Node* parent);
+    void deleteNodeWithOneChild(Node* node, Node* parent);
+    void deleteNodeWithTwoChildren(Node* node);
 
-    static Node* copy_tree(const Node* node);
-    static void delete_tree(Node* node);
-    static void print_inorder(const Node* node);
-    static Node* remove_node(Node* node, const T& value, bool& removed);
+    Node* root;
 };
 
 #include "BST.tpp"

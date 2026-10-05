@@ -3,178 +3,152 @@
 
 template <typename T>
 BST<T>::BST()
-    : root(nullptr), tree_size(0) {}
-
-template <typename T>
-BST<T>::BST(const BST& other)
-    : root(copy_tree(other.root)), tree_size(other.tree_size) {}
-
-template <typename T>
-BST<T>& BST<T>::operator=(const BST& other) {
-    if (this == &other) {
-        return *this;
-    }
-
-    Node* copied_root = copy_tree(other.root);
-    delete_tree(root);
-    root = copied_root;
-    tree_size = other.tree_size;
-    return *this;
-}
+    : root(nullptr) {}
 
 template <typename T>
 BST<T>::~BST() {
-    clear();
+    delete root;
 }
 
 template <typename T>
 bool BST<T>::insert(const T& value) {
-    Node** current = &root;
+    Node** node = &root;
 
-    while (*current != nullptr) {
-        if (value == (*current)->data) {
+    while (*node != nullptr) {
+        if (value == (*node)->data) {
             return false;
         }
-        current = value < (*current)->data ? &(*current)->left : &(*current)->right;
+
+        if (value < (*node)->data) {
+            node = &(*node)->left;
+        } else {
+            node = &(*node)->right;
+        }
     }
 
-    *current = new Node(value);
-    ++tree_size;
+    *node = new Node(value);
     return true;
 }
 
 template <typename T>
-bool BST<T>::contains(const T& value) const {
-    const Node* current = root;
+void BST<T>::remove(const T& val) {
+    Node* parent = nullptr;
+    Node* node = root;
 
-    while (current != nullptr) {
-        if (value == current->data) {
-            return true;
+    while (node != nullptr && node->data != val) {
+        parent = node;
+
+        if (val < node->data) {
+            node = node->left;
+        } else {
+            node = node->right;
         }
-        current = value < current->data ? current->left : current->right;
     }
 
-    return false;
-}
-
-template <typename T>
-bool BST<T>::has(const T& value) const {
-    return contains(value);
-}
-
-template <typename T>
-bool BST<T>::remove(const T& value) {
-    bool removed = false;
-    root = remove_node(root, value, removed);
-    if (removed) {
-        --tree_size;
+    if (node == nullptr) {
+        std::cout << "remove: No Node to delee\n";
+        return;
     }
-    return removed;
+
+    if (node->left == nullptr && node->right == nullptr) {
+        deleteLeaf(node, parent);
+    } else if (node->left == nullptr || node->right == nullptr) {
+        deleteNodeWithOneChild(node, parent);
+    } else {
+        deleteNodeWithTwoChildren(node);
+    }
 }
 
 template <typename T>
-bool BST<T>::empty() const {
-    return root == nullptr;
+typename BST<T>::Node* BST<T>::search(const T& value) const {
+    Node* node = root;
+
+    while (node != nullptr && node->data != value) {
+        if (value < node->data) {
+            node = node->left;
+        } else {
+            node = node->right;
+        }
+    }
+
+    return node;
 }
 
 template <typename T>
-std::size_t BST<T>::size() const {
-    return tree_size;
+typename BST<T>::Node* BST<T>::getMinNode(Node* node) const {
+    while (node->left != nullptr) {
+        node = node->left;
+    }
+
+    return node;
 }
 
 template <typename T>
-void BST<T>::clear() {
-    delete_tree(root);
-    root = nullptr;
-    tree_size = 0;
+void BST<T>::inorder(Node* node) const {
+    if (node == nullptr) {
+        return;
+    }
+
+    inorder(node->left);
+    std::cout << node->data << ' ';
+    inorder(node->right);
 }
 
 template <typename T>
-void BST<T>::inorder() const {
-    print_inorder(root);
+void BST<T>::print() const {
+    inorder(root);
     std::cout << '\n';
 }
 
 template <typename T>
-void BST<T>::inordr() const {
-    inorder();
-}
-
-template <typename T>
-typename BST<T>::Node* BST<T>::copy_tree(const Node* node) {
-    if (node == nullptr) {
-        return nullptr;
+void BST<T>::deleteLeaf(Node* node, Node* parent) {
+    if (parent == nullptr) {
+        root = nullptr;
+    } else if (parent->left == node) {
+        parent->left = nullptr;
+    } else {
+        parent->right = nullptr;
     }
 
-    Node* copy = new Node(node->data);
-    try {
-        copy->left = copy_tree(node->left);
-        copy->right = copy_tree(node->right);
-    } catch (...) {
-        delete_tree(copy);
-        throw;
-    }
-    return copy;
-}
-
-template <typename T>
-void BST<T>::delete_tree(Node* node) {
-    if (node == nullptr) {
-        return;
-    }
-
-    delete_tree(node->left);
-    delete_tree(node->right);
     delete node;
 }
 
 template <typename T>
-void BST<T>::print_inorder(const Node* node) {
-    if (node == nullptr) {
-        return;
+void BST<T>::deleteNodeWithOneChild(Node* node, Node* parent) {
+    Node* child = node->left != nullptr ? node->left : node->right;
+
+    if (parent == nullptr) {
+        root = child;
+    } else if (parent->left == node) {
+        parent->left = child;
+    } else {
+        parent->right = child;
     }
 
-    print_inorder(node->left);
-    std::cout << node->data << ' ';
-    print_inorder(node->right);
+    node->left = nullptr;
+    node->right = nullptr;
+    delete node;
 }
 
 template <typename T>
-typename BST<T>::Node* BST<T>::remove_node(Node* node, const T& value, bool& removed) {
-    if (node == nullptr) {
-        return nullptr;
-    }
+void BST<T>::deleteNodeWithTwoChildren(Node* node) {
+    Node* min_right = node->right;
+    Node* min_parent = node;
 
-    if (value < node->data) {
-        node->left = remove_node(node->left, value, removed);
-        return node;
+	// find min_right
+    while (min_right->left != nullptr) {
+        min_parent = min_right;
+        min_right = min_right->left;
     }
-    if (node->data < value) {
-        node->right = remove_node(node->right, value, removed);
-        return node;
-    }
+	// change value at the node
+    node->data = min_right->data;
 
-    removed = true;
-    if (node->left == nullptr) {
-        Node* replacement = node->right;
-        delete node;
-        return replacement;
+	//delete min right
+    if (min_right->right == nullptr) {
+        deleteLeaf(min_right, min_parent);
+    } else {
+        deleteNodeWithOneChild(min_right, min_parent);
     }
-    if (node->right == nullptr) {
-        Node* replacement = node->left;
-        delete node;
-        return replacement;
-    }
-
-    Node* successor = node->right;
-    while (successor->left != nullptr) {
-        successor = successor->left;
-    }
-    node->data = successor->data;
-
-    bool successor_removed = false;
-    node->right = remove_node(node->right, successor->data, successor_removed);
-    return node;
 }
 
 #endif
