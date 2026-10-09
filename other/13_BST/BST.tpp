@@ -151,4 +151,65 @@ void BST<T>::deleteNodeWithTwoChildren(Node* node) {
     }
 }
 
+template <typename T>
+typename BST<T>::Node*& BST<T>::findLink(const T& value) {
+    Node** link = &root;
+    while (*link != nullptr && (*link)->data != value) {
+        link = value < (*link)->data ? &(*link)->left : &(*link)->right;
+    }
+    return *link;
+}
+
+template <typename T>
+void BST<T>::rotateRight(Node*& node) {
+    Node* pivot = node->left;
+    node->left = pivot->right;
+    pivot->right = node;
+    node = pivot;
+}
+
+template <typename T>
+void BST<T>::rotateLeft(Node*& node) {
+    Node* pivot = node->right;
+    node->right = pivot->left;
+    pivot->left = node;
+    node = pivot;
+}
+
+template <typename T>
+bool BST<T>::rotateRight(const T& value) {
+    Node*& node = findLink(value);
+    if (node == nullptr || node->left == nullptr) return false;
+    rotateRight(node);
+    return true;
+}
+
+template <typename T>
+bool BST<T>::rotateLeft(const T& value) {
+    Node*& node = findLink(value);
+    if (node == nullptr || node->right == nullptr) return false;
+    rotateLeft(node);
+    return true;
+}
+
+template <typename T>
+bool BST<T>::rotateLeftRight(const T& value) {
+    Node*& node = findLink(value);
+    if (node == nullptr || node->left == nullptr || node->left->right == nullptr)
+        return false;
+    rotateLeft(node->left);
+    rotateRight(node);
+    return true;
+}
+
+template <typename T>
+bool BST<T>::rotateRightLeft(const T& value) {
+    Node*& node = findLink(value);
+    if (node == nullptr || node->right == nullptr || node->right->left == nullptr)
+        return false;
+    rotateRight(node->right);
+    rotateLeft(node);
+    return true;
+}
+
 #endif
