@@ -18,7 +18,7 @@ int Graph<T>::searchVertexIndex(const T& value) const
 template <typename T>
 void Graph<T>::print() const
 {
-    for (int i = 0; i < static_cast<int>(verticies.size()); i++)
+    for (int i = 0; i < verticies.size(); i++)
     {
         std::cout << verticies[i] << ": ";
 
@@ -55,6 +55,15 @@ void Graph<T>::insertEdge(const T& v1, const T& v2)
     {
         std::cout << "insertEdge: incorrect vertices\n";
         return;
+    }
+    
+    // Avoid duplicate edges
+    for (int neighbor : adjacency_lists[i_v1])
+    {
+        if (neighbor == i_v2)
+        {
+            return;
+        }
     }
 
     // Insert in the adjacency list

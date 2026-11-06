@@ -8,6 +8,15 @@ class SimpleMap {
 private:
     vector<pair<string, int>> items;
 
+    int searchIndex(const string& key) const {
+        for (int i = 0; i < static_cast<int>(items.size()); ++i) {
+            if (items[i].first == key) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
 public:
     void Insert(string key, int value) {
         items.push_back({key, value});
@@ -15,23 +24,18 @@ public:
 
     // Updates the value if the key is already in the map.
     bool Updates(string key, int newValue) {
-        for (auto& item : items) {
-            if (item.first == key) {
-                item.second = newValue;
-                return true;
-            }
+        int index = searchIndex(key);
+        if (index == -1) {
+            return false;
         }
-        return false;
+
+        items[index].second = newValue;
+        return true;
     }
 
     // Contains only checks if the key is there.
-    bool Contains(string key) {
-        for (auto item : items) {
-            if (item.first == key) {
-                return true;
-            }
-        }
-        return false;
+    bool Contains(string key) const {
+        return searchIndex(key) != -1;
     }
 
     void Print() {
