@@ -16,18 +16,33 @@ int Graph<T>::searchVertexIndex(const T& value) const
 }
 
 template <typename T>
-void Graph<T>::insertVertex(const T& v)
+void Graph<T>::print() const
+{
+    for (int i = 0; i < static_cast<int>(verticies.size()); i++)
+    {
+        std::cout << verticies[i] << ": ";
+
+        for (int neighbor : adjacency_lists[i])
+        {
+            std::cout << verticies[neighbor] << " ";
+        }
+
+        std::cout << "\n";
+    }
+}
+
+template <typename T>
+void Graph<T>::insertVertex(const T& value)
 {
     // Check for dupes
-    if (searchVertexIndex(v) != -1)
+    if (searchVertexIndex(value) != -1)
     {
         std::cout << "insertVertex: vertex already exists\n";
         return;
     }
     // Add new Vertex
-    verticies.push_back(v);
-    std::vector<int> tmp;
-    adjacency_lists.push_back(tmp); // creates empty list of neighbors
+    verticies.push_back(value);
+    adjacency_lists.push_back(std::vector<int>()); // creates empty list of neighbors
 }
 
 template <typename T>
