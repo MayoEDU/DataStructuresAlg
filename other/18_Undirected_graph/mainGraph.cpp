@@ -27,7 +27,14 @@ int main()
         }
     }
 
+    // graph print
     friends.print();
 
+    // how many friends chandler has
+    std::cout<< friends.getDegree("Chandler") << std::endl;
+    
+    // are phobe and joey friend
+    std::cout << friends.hasEdge("Phoebe", "Joey") << std::endl;
+    
     return 0;
 }

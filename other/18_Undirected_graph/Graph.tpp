@@ -70,3 +70,43 @@ void Graph<T>::insertEdge(const T& v1, const T& v2)
     adjacency_lists[i_v1].push_back(i_v2);
     adjacency_lists[i_v2].push_back(i_v1);
 }
+
+// Find vertex, -1 if not found
+// Return adjacency_list size
+template <typename T>
+int Graph<T>::getDegree(const T& vertex) const
+{
+    int index = searchVertexIndex(vertex);
+    if (index == -1)
+    {
+        return -1;
+    }
+    else
+    {
+        return adjacency_lists[index].size();
+    }
+}
+
+//Find indices of both vert, return -1 if not found
+// Search adjacency_list for first (second) index
+template <typename T>
+bool Graph<T>::hasEdge(const T& v1,const T& v2) const
+{
+    int index1 = searchVertexIndex(v1);
+    int index2 = searchVertexIndex(v2);
+
+    if (index1 == -1 || index2 == -1)
+    {
+        return false;
+    }
+
+    for (int neighbor : adjacency_lists[index1])
+    {
+        if (neighbor == index2)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
