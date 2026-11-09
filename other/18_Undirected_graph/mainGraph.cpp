@@ -29,6 +29,8 @@ int main()
 
     // graph print
     friends.print();
+    
+    friends.BFS("Ross");
 
     // how many friends chandler has
     std::cout<< friends.getDegree("Chandler") << std::endl;

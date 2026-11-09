@@ -1,4 +1,5 @@
 ﻿#include <iostream>
+#include <queue>
 
 #include "Graph.hpp"
 
@@ -109,4 +110,77 @@ bool Graph<T>::hasEdge(const T& v1,const T& v2) const
     }
 
     return false;
+}
+
+// BFS
+template <typename T>
+void Graph<T>::BFS(const T& start) const
+{
+    int start_index = searchVertexIndex(start);
+    
+    if (start_index == -1)
+    {
+        std::cout << "BFS: Incorrect vertex index\n";
+        return;
+    }
+    std::cout << "BFS: ";
+    // Create queue for vector of discovered vert.
+    std::queue<int> q;
+    std::vector<bool> discovered(verticies.size(), false);
+    
+    // Add start vertex for queue
+    q.push(start_index);
+    discovered[start_index] = true;
+    
+    while (!q.empty())
+    {
+        // Get front
+        int curent_index = q.front();
+        q.pop();
+        
+        std::cout << verticies[curent_index] << " ";
+        
+        // Discover Neighbor (s) and add non-discovered to queue
+        for (int neighbor : adjacency_lists[curent_index])
+        {
+         if (!discovered[neighbor])
+         {
+             discovered[neighbor] = true;
+             q.push(neighbor);
+         }   
+        }
+        std::cout << "\n";
+    }
+}
+
+// DFS
+template <typename T>
+void Graph<T>::DFS(const T& start) const
+{
+    int start_index = searchVertexIndex(start);
+    if (start_index == -1)
+    {
+        std::cout << "DFS: Incorrect vertex index\n";
+        return;
+    }
+    std::cout << "DFS: ";
+    
+    //Vector of visited vert
+    std::vector<bool> verticies(verticies.size(), false);
+    DFSExplore(index, visited);
+    
+}
+
+template <typename T>
+void Graph<T>::DFSExplore(int index, std::vector<bool>& visited) const
+{
+    // Mark the current index as visited
+    if (index == -1)
+    {
+        std::cout << "DFSExplore: Incorrect vertex index\n";
+    }
+    visited[index] = true;
+    std::cout << verticies[index] << " ";
+    
+    // Go through neighbors, if not visited, call DFSExplore for that vertex.
 }
