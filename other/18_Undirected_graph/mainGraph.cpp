@@ -1,5 +1,6 @@
 #include "Graph.hpp"
 
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -19,9 +20,9 @@ int main()
         "Ross", "Monica", "Rachel", "Chandler", "Joey"
     };
 
-    for (int i = 0; i < everyoneButPhoebe.size(); ++i)
+    for (std::size_t i = 0; i < everyoneButPhoebe.size(); ++i)
     {
-        for (int j = i + 1; j < everyoneButPhoebe.size(); ++j)
+        for (std::size_t j = i + 1; j < everyoneButPhoebe.size(); ++j)
         {
             friends.insertEdge(everyoneButPhoebe[i], everyoneButPhoebe[j]);
         }
@@ -31,12 +32,22 @@ int main()
     friends.print();
     
     friends.BFS("Ross");
+    
+    std::cout << "isConnected: " << friends.isConnected() << std::endl;
+    friends.insertEdge("Ross", "Phoebe");
+    std::cout << "isConnected: " << friends.isConnected() << std::endl;
 
     // how many friends chandler has
     std::cout<< friends.getDegree("Chandler") << std::endl;
     
     // are phobe and joey friend
     std::cout << friends.hasEdge("Phoebe", "Joey") << std::endl;
+    
+    friends.BFS("Ross");
+    friends.DFS("Ross");
+    
+    std::cout << "Ross to Phoebe: "
+              << friends.shortestPath("Ross", "Phoebe") << std::endl;
     
     return 0;
 }

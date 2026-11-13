@@ -19,7 +19,7 @@ int Graph<T>::searchVertexIndex(const T& value) const
 template <typename T>
 void Graph<T>::print() const
 {
-    for (int i = 0; i < verticies.size(); i++)
+    for (std::size_t i = 0; i < verticies.size(); i++)
     {
         std::cout << verticies[i] << ": ";
 
@@ -165,22 +165,104 @@ void Graph<T>::DFS(const T& start) const
     }
     std::cout << "DFS: ";
     
-    //Vector of visited vert
-    std::vector<bool> verticies(verticies.size(), false);
-    DFSExplore(index, visited);
-    
+    std::vector<bool> visited(verticies.size(), false);
+    DFSExplore(start_index, visited);
+    std::cout << "\n";
 }
 
 template <typename T>
-void Graph<T>::DFSExplore(int index, std::vector<bool>& visited) const
+void Graph<T>::DFSExplore(int index, std::vector<bool>& visited, bool print) const
 {
     // Mark the current index as visited
-    if (index == -1)
+    if (index < 0 || index >= static_cast<int>(verticies.size()))
     {
         std::cout << "DFSExplore: Incorrect vertex index\n";
+        return;
     }
+
     visited[index] = true;
-    std::cout << verticies[index] << " ";
+    if (print)
+    {
+        std::cout << verticies[index] << " ";
+    }
     
     // Go through neighbors, if not visited, call DFSExplore for that vertex.
+    for (int neighbor : adjacency_lists[index])
+    {
+        if (!visited[neighbor])
+        {
+            DFSExplore(neighbor, visited, print);
+        }
+    }
+}
+
+template <typename T>
+bool Graph<T>::isConnected() const
+{
+    // Empty Graph
+    if (verticies.empty())
+    {
+        return true;
+    }
+    
+    //visited
+    std::vector<bool> visited(verticies.size(), false);
+    
+    // Perform DFS
+    DFSExplore(0, visited, false);
+    for (bool v: visited)
+    {
+        if (!v)
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+template <typename T>
+int Graph<T>::shortestPath(const T& start, const T& end) const
+{
+    int start_index = searchVertexIndex(start);
+    int end_index = searchVertexIndex(end);
+    
+    if (start_index == -1 || end_index == -1)
+    {
+        std::cout << "shortestPath: incorrect vertex index\n";
+        return -1;
+    }
+    if (start == end)
+    {
+        return 0;
+    }
+    
+    // Create queue, vector of discoverted vert
+    std::queue<int> q;
+    std::vector<int> distances(verticies.size(), -1);
+    
+    //Add start vertex to queue
+    q.push(start_index);
+    
+    //Mark start index discovered
+    distances[start_index] = 0;
+    
+    while (!q.empty())
+    {
+        int current_index = q.front();
+        q.pop();
+        
+        for (int neighbor : adjacency_lists[current_index])
+        {
+            if (distances[neighbor] == -1)
+            {
+                distances[neighbor] = distances[current_index] + 1;
+                if (neighbor == end_index)
+                {
+                    return distances[neighbor];
+                }
+                q.push(neighbor);
+            }
+        }
+    }
+    return -1;
 }
