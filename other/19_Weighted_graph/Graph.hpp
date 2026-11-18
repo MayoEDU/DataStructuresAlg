@@ -3,12 +3,6 @@
 
 #include <vector>
 
-struct Edge
-{
-    int neighbor;
-    int weight;
-};
-
 template <typename T>
 class Graph
 {
@@ -28,8 +22,15 @@ public:
 
     int shortestPath(const T& start, const T& end) const;
     int shortestPathByEdges(const T& start, const T& end) const;
+    int shortestPathByDistance(const T& start, const T& end) const;
 
 private:
+    struct Edge
+    {
+        int neighbor;
+        int weight;
+    };
+
     std::vector<T> verticies;
     std::vector<std::vector<Edge>> adjacency_lists;
 

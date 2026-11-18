@@ -348,3 +348,60 @@ int Graph<T>::shortestPathByEdges(const T& start, const T& end) const
 
     return -1;
 }
+
+template <typename T>
+int Graph<T>::shortestPathByDistance(const T& start, const T& end) const
+{
+    const int start_index = searchVertexIndex(start);
+    const int end_index = searchVertexIndex(end);
+
+    if (start_index == -1 || end_index == -1)
+    {
+        std::cout << "shortestPathByDistance: incorrect vertex index\n";
+        return -1;
+    }
+    if (start_index == end_index)
+    {
+        return 0;
+    }
+
+    const int infinity = std::numeric_limits<int>::max();
+    std::vector<int> distances(verticies.size(), infinity);
+    std::vector<bool> visited(verticies.size(), false);
+    distances[start_index] = 0;
+
+    for (std::size_t step = 0; step < verticies.size(); ++step)
+    {
+        int current_index = -1;
+        for (std::size_t i = 0; i < distances.size(); ++i)
+        {
+            if (!visited[i] && distances[i] != infinity &&
+                (current_index == -1 || distances[i] < distances[current_index]))
+            {
+                current_index = static_cast<int>(i);
+            }
+        }
+
+        if (current_index == -1)
+        {
+            break;
+        }
+        if (current_index == end_index)
+        {
+            return distances[current_index];
+        }
+
+        visited[current_index] = true;
+        for (const Edge& edge : adjacency_lists[current_index])
+        {
+            if (!visited[edge.neighbor] &&
+                distances[current_index] <= infinity - edge.weight &&
+                distances[current_index] + edge.weight < distances[edge.neighbor])
+            {
+                distances[edge.neighbor] = distances[current_index] + edge.weight;
+            }
+        }
+    }
+
+    return -1;
+}

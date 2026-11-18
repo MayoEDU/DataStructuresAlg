@@ -42,6 +42,11 @@ int main()
         << cities.shortestPath("Lakeland", "Miami") << " miles" << std::endl;
     std::cout << "Lakeland to Miami: "
         << cities.shortestPathByEdges("Lakeland", "Miami") << " edges" << std::endl;
+    
+    // Test shorted path by distance
+    
+    std::cout << " Miami to Tampa - Shortest Distance" 
+    << cities.shortestPathByDistance("Miami", "Tampa") << std::endl;
 
     return 0;
 }
